@@ -127,9 +127,6 @@ jobs:
         run: .\Il2CppDumper\Il2CppDumper.exe .\parser\temp\GameAssembly.dll .\parser\temp\Dofus_Data\il2cpp_data\Metadata\global-metadata.dat
         shell: pwsh
 
-      - name: Run protodec
-        run: .\Il2CppDumper\protodec.exe .\Il2CppDumper\DummyDll .\parser\dofus.proto --include-properties-without-non-user-code-attribute
-
       - name: Create Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -141,12 +138,10 @@ jobs:
 
           $notes = "Quick links:`n"
           $notes += "  - [dofus.sqlite](https://github.com/ledouxm/dofus-sqlite/releases/download/v${{ needs.check-version.outputs.release_tag }}/dofus.sqlite)`n"
-          $notes += "  - [dofus.proto](https://github.com/ledouxm/dofus-sqlite/releases/download/v${{ needs.check-version.outputs.release_tag }}/dofus.proto)`n`n"
           $notes += "Release contains:`n`n"
           $notes += "- dofus.sqlite database file`n"
           $notes += "- i18n files`n"
           $notes += "- Dofus 3 data files (quests, achievements, mapPositions, )`n"
-          $notes += "- Dofus obfuscated proto file`n`n"
           $notes += "This release is auto-generated."
 
           gh release create "v${{ needs.check-version.outputs.release_tag }}" --title "Release ${{ needs.check-version.outputs.release_tag }}" --notes "$notes" --draft=false $(if ($isPrerelease) {"--prerelease"})
@@ -160,4 +155,3 @@ jobs:
               gh release upload "v${{ needs.check-version.outputs.release_tag }}" $file.FullName
           }
           gh release upload "v${{ needs.check-version.outputs.release_tag }}" parser/dofus.sqlite
-          gh release upload "v${{ needs.check-version.outputs.release_tag }}" parser/dofus.proto
