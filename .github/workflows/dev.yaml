@@ -103,7 +103,7 @@ jobs:
 
             - name: Extract data with cytrus
               working-directory: ./parser
-              run: cytrus-v6 download --game dofus --release dofus3 --output temp/ --select **/StreamingAssets/Content/Data/**/*.bundle --select **/StreamingAssets/Content/I18n/*.bin --select **/GameAssembly.dll --select **/global-metadata.dat
+              run: cytrus-v6 download --game dofus --release dofus3 --output temp/ --select **/GameAssembly.dll --select **/global-metadata.dat
 
             - name: Parse files to JSON
               working-directory: ./parser
@@ -111,13 +111,6 @@ jobs:
               env:
                   INPUT_FOLDER: temp/
                   OUTPUT_FOLDER: json/
-
-            - name: Update database
-              working-directory: ./parser
-              run: pnpm db
-              env:
-                  DATABASE_URL: ./dofus.sqlite
-                  JSON_FOLDER: json/
 
             - name: Run Il2CppDumper
               run: .\Il2CppDumper\Il2CppDumper.exe .\parser\temp\GameAssembly.dll .\parser\temp\Dofus_Data\il2cpp_data\Metadata\global-metadata.dat
@@ -131,12 +124,8 @@ jobs:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   $notes = "Quick links:`n"
-                  $notes += "  - [dofus.sqlite](https://github.com/ledouxm/dofus-sqlite/releases/download/v${{ needs.check-version.outputs.release_tag }}/dofus.sqlite)`n"
                   $notes += "  - [dofus.proto](https://github.com/ledouxm/dofus-sqlite/releases/download/v${{ needs.check-version.outputs.release_tag }}/dofus.proto)`n`n"
                   $notes += "Release contains:`n`n"
-                  $notes += "- dofus.sqlite database file`n"
-                  $notes += "- i18n files`n"
-                  $notes += "- Dofus 3 data files (quests, achievements, mapPositions, )`n"
                   $notes += "- Dofus obfuscated proto file`n`n"
                   $notes += "This release is auto-generated."
 
@@ -146,9 +135,4 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  $files = Get-ChildItem -Path "parser/json" -File
-                  foreach ($file in $files) {
-                      gh release upload "v${{ needs.check-version.outputs.release_tag }}" $file.FullName
-                  }
-                  gh release upload "v${{ needs.check-version.outputs.release_tag }}" parser/dofus.sqlite
                   gh release upload "v${{ needs.check-version.outputs.release_tag }}" parser/dofus.proto
